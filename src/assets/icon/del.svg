@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="49px" viewBox="0 0 48 49" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 59.1 (86144) - https://sketch.com -->
+    <title>编组 3备份</title>
+    <desc>Created with Sketch.</desc>
+    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="购物车" transform="translate(-669.000000, -311.000000)" stroke="#979797" stroke-width="2">
+            <g id="编组-3备份-2" transform="translate(670.000000, 312.000000)">
+                <g id="编组-3备份">
+                    <path d="M33,10 C33,4.4771525 28.7467051,0 23.5,0 C18.2532949,0 14,4.4771525 14,10" id="路径"></path>
+                    <line x1="0" y1="10.5" x2="46" y2="10.5" id="路径" stroke-linecap="round"></line>
+                    <path d="M41,10 L41,43.7826087 C41,45.5595248 39.7463973,47 38.2,47 L8.8,47 C7.2536027,47 6,45.5595248 6,43.7826087 L6,10" id="路径"></path>
+                    <g id="编组-2" transform="translate(14.000000, 22.000000)" stroke-linecap="round">
+                        <line x1="10" y1="0" x2="10" y2="16" id="路径-7备份"></line>
+                        <line x1="0.4" y1="0" x2="0.4" y2="16" id="路径-7"></line>
+                        <line x1="19.6" y1="0" x2="19.6" y2="16" id="路径-7备份-2"></line>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

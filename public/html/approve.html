@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="keywords" content="办公用品-办公耗材-打印机-复印纸-政府采购-政府电商-B2B综合解决方案服务商">
+  <meta name="description" content="领先未来科技集团有限公司，是国内一流的B2B综合解决方案服务商，专注于办公服务领域。为响应国家提出的阳光采购倡议，针对政企采购效率低、成本高、过程不透明的问题。">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>审批</title>
+  <script src="https://cdn.bootcss.com/vue/2.6.8/vue.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <!-- 引入样式 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@2.10.3/lib/index.css">
+  <!-- 引入组件库 -->
+  <script src="https://cdn.jsdelivr.net/npm/vant@2.10.3/lib/vant.min.js"></script>
+  <style>
+    #app {
+      font-size: 0.9rem;
+      background-color: #f2f2f2;
+      padding: 0.3rem;
+      max-width: 600px;
+      margin: 50px auto;
+    }
+
+    #app>div {
+      border-radius: 3px;
+      box-sizing: border-box;
+      color: #4c4c4c;
+    }
+
+    h3 {
+      font-size: 0.9rem;
+      margin: 0;
+      font-weight: 400;
+    }
+
+    h2 {
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    .nav-bar {
+      background-color: #fff;
+    }
+
+    .van-nav-bar__text {
+      color: #333;
+    }
+
+    .van-divider {
+      margin: 0.5rem 0;
+    }
+
+    .odr-info{
+      position: relative;
+      margin-top: 0.3rem;
+      width: 100%;
+      background-color: #fff;
+      padding: 0.4rem;
+    }
+
+    .odr-info-epx {
+      position: absolute;
+      right: 0;
+      top: 0.4rem;
+    }
+
+    .odr-info-epx span {
+      font-size: 0.1rem;
+      margin-right: 1rem;
+    }
+
+    .odr-info p{
+      font-size: 0.6rem;
+      color: #999;
+    }
+
+    .van-steps__items span {
+      font-size: 0.6rem;
+    }
+
+    .odr-info>div {
+      text-align: center;
+      margin-top: 10px;
+      padding: 0 16px;
+    }
+    .odr-info>p {
+      margin-top: 10px;
+      padding: 0 16px;
+      color: #8a8a8a;
+      font-size: 14px;
+    }
+
+    .tb-hd {
+      background-color: #f2f2f2;
+      color: #333;
+    }
+
+    .sbmt-btn {
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .btn-size {
+      width: 8rem;
+      margin-bottom: 1rem;
+    }
+
+    .no-wrap {
+      white-space: nowrap
+    }
+    .van-field__label{
+      width: 60px;
+    }
+    .van-button--small{
+      min-width: 60px;
+    }
+    .van-field__control{
+      border: 1px solid #bbb;
+      padding: 6px;
+    }
+    .van-field__control:disabled {
+      color: #c8c9cc;
+      background-color: #f5f5f5;
+    }
+    .van-cell::after{
+      border: none;
+    }
+    .van-overlay{
+      background-color: rgba(0, 0, 0, 0.3);
+    }
+    .wrapper{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+    @media (orientation:portrait) and (max-width:420px) {
+      #app {
+        max-width: 90%;
+        margin-top: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="nav-bar">
+      <van-nav-bar :title="title" />
+    </div>
+
+    <!-- <div class="odr-info">
+      <h3>订单信息</h3>
+      <van-divider></van-divider>
+      <p>订单编号：</p>
+      <p>创建时间：</p>
+    </div> -->
+
+    <div class="odr-info">
+      <van-field v-model="password" placeholder="请输入" :disabled="approveStatus"></van-field>
+      <P>请输入您的智采密码</P>
+      <div>
+        <van-button :loading="loading" type="info" size="small" :disabled="loading || loadingR" loading-text="通过" @click="approveOpa(1)">通过</van-button>
+        <van-button :loading="loadingR" size="small" :disabled="loading || loadingR" loading-text="驳回" @click="approveOpa(0)">驳回</van-button>
+      </div>
+    </div>
+    <van-overlay :show="show">
+      <div class="wrapper" @click.stop>
+        <van-loading type="spinner" color="#1989fa" />
+        <span>加载中...</span>
+      </div>
+    </van-overlay>
+  </div>
+  <script type="text/javascript">
+    new Vue({
+      el: '#app',
+      data: {
+        title: "审批",
+        show:false,
+        taskToken: "",
+        userToken:"",
+        password: "",
+        approveStatus:false,//审批状态是否可以继续审批
+        userInfo:null,
+        loading:false,
+        loadingR:false,
+        taskTokenError:{}
+      },
+      mounted() {
+        this.taskToken = this.getQueryVariable("taskToken") || "";
+        this.axiosConfig();
+        this.getInfo();
+      },
+      computed: {},
+      methods: {
+        //axios拦截器
+        axiosConfig() {
+          //请求拦截器
+          axios.interceptors.request.use(
+            config => {
+              if(config.noNeedToken){
+                return config;
+              }
+              if (this.userToken && config.url.indexOf("/oauth/token") == -1) {
+                  config.headers['Authorization'] = "Bearer " + this.userToken
+              } else {
+                  config.headers['Authorization'] = "Basic V0VCQVBQOldFQkFQUA=="
+              }
+              return config;
+            },
+            error => {
+              Promise.reject(error)
+            }
+          )
+          //响应拦截器
+          axios.interceptors.response.use(
+            response => {
+              this.loading = false;
+              this.loadingR = false;
+              this.show = false;
+              if (response.status === 200) {
+                return Promise.resolve(response.data)
+              } else {
+                return Promise.reject(response.data)
+              }
+            },
+            // 服务器状态码不是200的情况
+            error => {
+              this.loading = false;
+              this.loadingR = false;
+              this.show = false;
+              if (error.response.status) {
+                switch (error.response.status) {
+                  case 401:
+                    this.notify("无权限");
+                    break
+                  case 403:
+                    this.notify("登录过期");
+                    break
+                  case 404:
+                    this.notify("网络请求不存在");
+                    break
+                  default:
+                    let t= 1000;
+                    if(error.response.data.code == "010231102"){
+                      t=0;
+                      this.approveStatus=true;
+                    }
+                    this.notify(error.response.data.message, 'danger', t);
+                }
+                return Promise.reject(error.response)
+              }
+            }
+          )
+        },
+        //获取url参数
+        getQueryVariable(variable) {
+          var query = window.location.search.substring(1);
+          var vars = query.split("&");
+          for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            if (pair[0] == variable) {
+              return pair[1];
+            }
+          }
+          return false;
+        },
+        getInfo(){
+          this.show = true;
+          axios({
+            url:`/api/shoppe-api-service/moblie/order-review-management/email/task-token/${this.taskToken}`,
+            method: 'get',
+            noNeedToken:true
+          }).then(res => {
+            res.code == "000000" && (this.userInfo = res.data)
+          }).catch((error) => {
+            this.taskTokenError = error.data
+          })
+        },
+        approveOpa(type){
+          if(this.approveStatus){
+            return false;
+          }
+          if(!this.userInfo){
+            this.notify(this.taskTokenError.message || "已审批,请勿重复审批");
+            return false;
+          }
+          if(!this.password){
+            this.loading = false;
+            this.notify("请输入登录密码", 'warning');
+            return false;
+          }
+
+          let callback;
+          if(type){
+            callback = this.pass;
+            this.loading = true;
+          }else{
+            callback = this.refuse;
+            this.loadingR = true;
+          }          
+          this.login(callback);
+        },
+        login(cb){
+          var formData = new FormData();
+          formData.append("grant_type", "password");
+          formData.append("username", this.userInfo.userName);
+          formData.append("password", this.password); 
+          axios({
+            url: `/api/user-service/oauth/token`,
+            method: 'post',
+            headers: {
+              'channel': 2,
+              'system-tag': 1
+            },
+            data:formData
+          }).then(res => {
+            if (res.code == '000000'||res.access_token) {
+              this.userToken = res.access_token;
+              cb && cb();
+            }else{
+              this.notify(res.message, "danger");
+            }
+          }).catch((error) => {
+            console.log(error)
+          })
+        },
+        pass() {
+          axios.get(`/api/shoppe-api-service/moblie/order-review-management/${this.userInfo.taskId}/pass/${this.userInfo.customerOrderId}`,{params: {memo: ""}}).then(res => {
+            vant.Toast.success('审批通过成功');
+          }).catch((error) => {
+            console.log(error)
+          })
+        },
+        refuse() {
+          axios.get(`/api/shoppe-api-service/moblie/order-review-management/${this.userInfo.taskId}/reject//${this.userInfo.customerOrderId}`,{params: {memo: ""}}).then(resp => {
+            vant.Toast.success('审批驳回成功');
+          }).catch((error) => {
+            console.log(error)
+          })
+        },
+        notify(msg, type = 'danger', t = 1000){
+          vant.Notify({
+            message: msg,
+            type: type,
+            duration: t
+          });
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,27 @@
+html {
+  font-size: 26.66666667vw;
+}
+@media screen and (max-width: 320px) {
+  html {
+    font-size: 85PX;
+  }
+}
+@media screen and (min-width: 540px) {
+  html {
+    font-size: 115PX;
+  }
+}
+@media screen and (min-width: 768px) {
+  html {
+    font-size: 153.6PX;
+  }
+}
+@media screen and (min-width: 1024px) {
+  html {
+    font-size: 204.8PX;
+  }
+}
+body {
+  min-width: 320px;
+  margin: 0;
+}
